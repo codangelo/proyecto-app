@@ -6,109 +6,99 @@
  * @flow strict-local
  */
 
-import React from 'react';
-import Saludo from './src/Saludo'
-import type {Node} from 'react';
+import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
   Text,
-  useColorScheme,
   View,
+  TextInput,
   Button,
+  StyleSheet,
+  FlatList,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import TaskList from './src/components/molecules/taskList/index'
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+const App = () => {
+  const [task, setTask] = useState('');
+  const [taskList, setTaskList] = useState([]);
+  const [completed, setCompleted] = useState(false);
+
+
+  const onChange = (text) => {
+    console.warn({ text });
+    setTask(text);
+  }
+
+  const addTask = () => {
+    setTaskList([...taskList, {id: Math.random() + 1, task}]);
+    setTask('');
+  }
+
+  const deleteTask = (id) => {
+    setTaskList(taskList.filter(task => task.id !== id));
+  }
+
+
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Hola Coder">Hola Coder!</Section>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <View style={styles.formContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder='Ingrese una tarea'
+          onChangeText={(text) => onChange(text)}
+          value={task}
+        />
+        <Button
+          color='#653239'
+          title='Guardar'
+          onPress={() => addTask()}
+          disabled={task.trim().length === 0}
+        />
+
+      </View>
+      < View style={styles.listContainer}>
+        <Text style={styles.listTitle}>Lista de tareas</Text>
+        {taskList.length > 0 ? (
+          <FlatList
+            keyExtractor={(item) => item.id.toString()}
+            refreshing={true}
+            data={taskList}
+            renderItem={({ item }) => <TaskList task={item} deleteTask={deleteTask} /> }
+          />
+
+        ) : (
+            <Text>No hay tareas</Text>
+          )}
+      </View>
+    </View >
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  formContainer: {
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  textInput: {
+    flex: 1,
+    borderBottomWidth: 1,
+    marginHorizontal: 20,
   },
-  highlight: {
-    fontWeight: '700',
+  listContainer: {
+    padding: 20,
+  },
+  listTitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#228CDB',
   },
 });
 
